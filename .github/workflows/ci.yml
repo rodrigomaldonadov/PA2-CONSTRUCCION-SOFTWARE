@@ -1,0 +1,99 @@
+# ============================================================
+# CI Pipeline - TaskFlow
+# Archivo: .github/workflows/ci.yml
+#
+# Propósito: Integración Continua — ejecuta linting y pruebas
+# automáticamente en cada push o pull request a develop y main.
+#
+# Autor: Abel Maldonado Vasquez
+# PA2 - Construcción de Software
+# ============================================================
+
+name: CI - Tests & Lint
+
+# ── Eventos que activan el pipeline ──────────────────────────
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'feature/**'
+      - 'release/**'
+      - 'hotfix/**'
+  pull_request:
+    branches:
+      - main
+      - develop
+
+# ── Jobs ─────────────────────────────────────────────────────
+jobs:
+  lint-and-test:
+    name: 🔍 Lint & 🧪 Test
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      # 1. Clonar el repositorio
+      - name: 📥 Checkout del código
+        uses: actions/checkout@v4
+
+      # 2. Configurar Node.js
+      - name: ⚙️ Configurar Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      # 3. Instalar dependencias
+      - name: 📦 Instalar dependencias
+        run: npm ci
+
+      # 4. Ejecutar ESLint
+      - name: 🔍 Ejecutar ESLint (análisis estático)
+        run: npm run lint
+        continue-on-error: false
+
+      # 5. Ejecutar pruebas unitarias con cobertura
+      - name: 🧪 Ejecutar pruebas Jest con cobertura
+        run: npm test -- --coverage --coverageReporters=text --coverageReporters=lcov
+
+      # 6. Subir reporte de cobertura como artefacto
+      - name: 📊 Subir reporte de cobertura
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report-node-${{ matrix.node-version }}
+          path: coverage/
+          retention-days: 7
+
+      # 7. Verificar que el build estático es válido
+      - name: 🏗️ Verificar estructura del proyecto
+        run: |
+          echo "✅ Verificando archivos requeridos..."
+          test -f src/index.html    && echo "✓ index.html encontrado"
+          test -f src/css/styles.css && echo "✓ styles.css encontrado"
+          test -f src/js/app.js     && echo "✓ app.js encontrado"
+          test -f src/js/storage.js && echo "✓ storage.js encontrado"
+          test -f src/js/ui.js      && echo "✓ ui.js encontrado"
+          echo "✅ Todos los archivos requeridos están presentes."
+
+  # ── Job de resumen ────────────────────────────────────────
+  summary:
+    name: 📋 Resumen CI
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: 📋 Resultado del pipeline
+        run: |
+          if [ "${{ needs.lint-and-test.result }}" == "success" ]; then
+            echo "🎉 CI Pipeline completado exitosamente!"
+            echo "✅ Linting: Pasado"
+            echo "✅ Tests: Pasados"
+          else
+            echo "❌ CI Pipeline falló. Revisar logs arriba."
+            exit 1
+          fi

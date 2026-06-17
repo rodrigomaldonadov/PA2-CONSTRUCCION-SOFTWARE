@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="TaskFlow - Gestiona tus tareas de manera eficiente con una interfaz moderna e intuitiva. Organiza, prioriza y da seguimiento a tus actividades." />
+  <meta name="keywords" content="tareas, gestión, productividad, to-do, lista" />
+  <meta name="author" content="Abel Maldonado Vasquez" />
+  <meta property="og:title" content="TaskFlow - Gestión de Tareas" />
+  <meta property="og:description" content="Aplicación web moderna para gestionar tareas con estilo." />
+  <meta property="og:type" content="website" />
+  <title>TaskFlow - Gestión de Tareas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar" role="complementary" aria-label="Panel de navegación">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="32" height="32" rx="10" fill="url(#grad)"/>
+            <path d="M8 16.5L13.5 22L24 11" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="grad" x1="0" y1="0" x2="32" y2="32">
+                <stop offset="0%" stop-color="#6366f1"/>
+                <stop offset="100%" stop-color="#8b5cf6"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <span class="logo-text">TaskFlow</span>
+      </div>
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Cerrar panel" title="Cerrar panel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Filtros de tareas">
+      <p class="nav-label">Vistas</p>
+      <ul class="nav-list">
+        <li>
+          <button class="nav-item active" id="nav-all" data-filter="all" aria-current="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            <span>Todas las tareas</span>
+            <span class="nav-badge" id="badge-all">0</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-item" id="nav-pending" data-filter="pending">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>Pendientes</span>
+            <span class="nav-badge" id="badge-pending">0</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-item" id="nav-completed" data-filter="completed">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span>Completadas</span>
+            <span class="nav-badge" id="badge-completed">0</span>
+          </button>
+        </li>
+      </ul>
+
+      <p class="nav-label">Categorías</p>
+      <ul class="nav-list">
+        <li>
+          <button class="nav-item" id="nav-cat-trabajo" data-filter="cat-trabajo">
+            <span class="cat-dot" style="background:#6366f1"></span>
+            <span>Trabajo</span>
+            <span class="nav-badge" id="badge-trabajo">0</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-item" id="nav-cat-personal" data-filter="cat-personal">
+            <span class="cat-dot" style="background:#22d3ee"></span>
+            <span>Personal</span>
+            <span class="nav-badge" id="badge-personal">0</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-item" id="nav-cat-estudio" data-filter="cat-estudio">
+            <span class="cat-dot" style="background:#f59e0b"></span>
+            <span>Estudio</span>
+            <span class="nav-badge" id="badge-estudio">0</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-item" id="nav-cat-salud" data-filter="cat-salud">
+            <span class="cat-dot" style="background:#10b981"></span>
+            <span>Salud</span>
+            <span class="nav-badge" id="badge-salud">0</span>
+          </button>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="progress-section">
+        <div class="progress-header">
+          <span>Progreso del día</span>
+          <span id="progress-percent">0%</span>
+        </div>
+        <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Progreso de tareas completadas">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main-content" id="main-content" role="main">
+
+    <!-- Header -->
+    <header class="top-bar" role="banner">
+      <div class="top-bar-left">
+        <button class="menu-btn" id="menu-btn" aria-label="Abrir panel de navegación" title="Menú">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="header-title">
+          <h1 id="page-title">Todas las tareas</h1>
+          <p class="header-date" id="header-date"></p>
+        </div>
+      </div>
+      <div class="top-bar-right">
+        <div class="search-box" role="search">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="search" id="search-input" class="search-input" placeholder="Buscar tareas..." aria-label="Buscar tareas" />
+        </div>
+        <div class="sort-group">
+          <label for="sort-select" class="sr-only">Ordenar por</label>
+          <select id="sort-select" class="sort-select" aria-label="Ordenar tareas">
+            <option value="date-desc">Más recientes</option>
+            <option value="date-asc">Más antiguas</option>
+            <option value="priority">Prioridad</option>
+            <option value="alpha">A-Z</option>
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <!-- Quick Add Bar -->
+    <section class="quick-add-section" aria-label="Agregar nueva tarea">
+      <form class="quick-add-form" id="quick-add-form" novalidate>
+        <div class="quick-add-input-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          <input
+            type="text"
+            id="task-input"
+            class="quick-add-input"
+            placeholder="Agregar nueva tarea... Presiona Enter para guardar"
+            maxlength="200"
+            aria-label="Nombre de la nueva tarea"
+            autocomplete="off"
+            required
+          />
+        </div>
+        <div class="quick-add-options">
+          <label for="task-category" class="sr-only">Categoría</label>
+          <select id="task-category" class="option-select" aria-label="Categoría de la tarea">
+            <option value="trabajo">💼 Trabajo</option>
+            <option value="personal">👤 Personal</option>
+            <option value="estudio">📚 Estudio</option>
+            <option value="salud">💚 Salud</option>
+          </select>
+          <label for="task-priority" class="sr-only">Prioridad</label>
+          <select id="task-priority" class="option-select" aria-label="Prioridad de la tarea">
+            <option value="medium">🟡 Media</option>
+            <option value="high">🔴 Alta</option>
+            <option value="low">🟢 Baja</option>
+          </select>
+          <label for="task-due-date" class="sr-only">Fecha límite</label>
+          <input type="date" id="task-due-date" class="option-select" aria-label="Fecha límite de la tarea" />
+          <button type="submit" class="add-btn" id="add-task-btn" aria-label="Agregar tarea">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Agregar
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Stats Bar -->
+    <section class="stats-bar" aria-label="Estadísticas de tareas">
+      <div class="stat-card" id="stat-total">
+        <span class="stat-value" id="stat-total-value">0</span>
+        <span class="stat-label">Total</span>
+      </div>
+      <div class="stat-card stat-pending" id="stat-pending">
+        <span class="stat-value" id="stat-pending-value">0</span>
+        <span class="stat-label">Pendientes</span>
+      </div>
+      <div class="stat-card stat-done" id="stat-done">
+        <span class="stat-value" id="stat-done-value">0</span>
+        <span class="stat-label">Completadas</span>
+      </div>
+      <div class="stat-card stat-overdue" id="stat-overdue">
+        <span class="stat-value" id="stat-overdue-value">0</span>
+        <span class="stat-label">Vencidas</span>
+      </div>
+    </section>
+
+    <!-- Task List -->
+    <section class="task-section" aria-label="Lista de tareas">
+      <div class="task-list-header">
+        <span class="task-count" id="task-count-label">0 tareas</span>
+        <button class="clear-completed-btn" id="clear-completed-btn" aria-label="Eliminar tareas completadas">
+          Limpiar completadas
+        </button>
+      </div>
+
+      <ul class="task-list" id="task-list" role="list" aria-label="Lista de tareas">
+        <!-- Las tareas se renderizan aquí dinámicamente -->
+      </ul>
+
+      <!-- Estado vacío -->
+      <div class="empty-state" id="empty-state" role="status" aria-live="polite">
+        <div class="empty-icon" aria-hidden="true">
+          <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="40" cy="40" r="38" stroke="currentColor" stroke-width="2" stroke-dasharray="6 4"/>
+            <path d="M25 42L35 52L55 32" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h2 class="empty-title">¡Sin tareas por aquí!</h2>
+        <p class="empty-subtitle">Agrega tu primera tarea usando el formulario de arriba</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== MODAL DE EDICIÓN ===== -->
+  <div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-hidden="true">
+    <div class="modal" id="edit-modal">
+      <div class="modal-header">
+        <h2 id="modal-title" class="modal-title">Editar Tarea</h2>
+        <button class="modal-close" id="modal-close" aria-label="Cerrar modal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <form class="modal-form" id="edit-form" novalidate>
+        <input type="hidden" id="edit-task-id" />
+        <div class="form-group">
+          <label for="edit-task-name" class="form-label">Nombre de la tarea</label>
+          <input type="text" id="edit-task-name" class="form-input" maxlength="200" required aria-required="true" />
+        </div>
+        <div class="form-group">
+          <label for="edit-task-desc" class="form-label">Descripción (opcional)</label>
+          <textarea id="edit-task-desc" class="form-textarea" rows="3" placeholder="Agrega más detalles..."></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-task-category" class="form-label">Categoría</label>
+            <select id="edit-task-category" class="form-input">
+              <option value="trabajo">💼 Trabajo</option>
+              <option value="personal">👤 Personal</option>
+              <option value="estudio">📚 Estudio</option>
+              <option value="salud">💚 Salud</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="edit-task-priority" class="form-label">Prioridad</label>
+            <select id="edit-task-priority" class="form-input">
+              <option value="low">🟢 Baja</option>
+              <option value="medium">🟡 Media</option>
+              <option value="high">🔴 Alta</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="edit-task-due" class="form-label">Fecha límite</label>
+          <input type="date" id="edit-task-due" class="form-input" />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="modal-cancel">Cancelar</button>
+          <button type="submit" class="btn-primary" id="modal-save">Guardar cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== TOAST NOTIFICATIONS ===== -->
+  <div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/storage.js"></script>
+  <script type="module" src="js/ui.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
